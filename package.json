@@ -1,0 +1,25 @@
+{
+  "name": "indo-data-api",
+  "version": "1.0.0",
+  "description": "Indo Data API — aggregated Indonesian open data (kurs, sholat, gempa, cuaca) as an x402 USDC paid API on Cloudflare Workers (Base network)",
+  "type": "module",
+  "main": "src/worker.mjs",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@x402/core": "^2.32.0",
+    "@x402/evm": "^2.32.0",
+    "@x402/hono": "^2.32.0",
+    "hono": "^4.13.22"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.2"
+  }
+}
