@@ -18,7 +18,7 @@ export const workerConfig = {
   price: '$0.002',
   amount: '2000', // $0.002 in USDC (6 decimals)
   usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base
-  facilitatorUrl: 'https://api.circle.com/v1/facilitator/x402',
+  facilitatorUrl: 'https://facilitator.payai.network',
   cacheTtlMs: 600000, // 10 minutes
   publicBaseUrl: 'https://indo-data-api.kamajaya-agents.workers.dev',
 };

@@ -8,7 +8,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     // Public, non-secret values.
-    "FACILITATOR_URL": "https://api.circle.com/v1/facilitator/x402"
+    "FACILITATOR_URL": "https://facilitator.payai.network"
     // sellerAddress is baked into src/worker.mjs (public payout address).
   }
   // Circle Facilitator Service requires an API key for verify/settle:
