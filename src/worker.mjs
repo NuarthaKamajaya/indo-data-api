@@ -241,9 +241,9 @@ const withPayToInBody = async (response, sellerAddress) => {
 export default {
   async fetch(request, env, ctx) {
     const app = createWorkerApp({
-      sellerAddress: env.SELLER_ADDRESS || undefined,
-      facilitatorUrl: env.FACILITATOR_URL || undefined,
-      publicBaseUrl: env.PUBLIC_BASE_URL || undefined,
+      ...(env.SELLER_ADDRESS ? { sellerAddress: env.SELLER_ADDRESS } : {}),
+      ...(env.FACILITATOR_URL ? { facilitatorUrl: env.FACILITATOR_URL } : {}),
+      ...(env.PUBLIC_BASE_URL ? { publicBaseUrl: env.PUBLIC_BASE_URL } : {}),
     }, {
       facilitatorAuth: env.CIRCLE_API_KEY ? authFor(env.CIRCLE_API_KEY) : undefined,
     });
