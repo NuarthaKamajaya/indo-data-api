@@ -47,23 +47,40 @@ function createCache(ttlMs) {
  *   bypassHeader/bypassValue
  */
 // Custom facilitator — plain fetch (HTTPFacilitatorClient 525 di workerd, plain fetch OK)
-function plainFacilitator(baseUrl) {
+function plainFacilitator(baseUrl, fallbackUrls = []) {
+  const bases = [baseUrl, ...fallbackUrls].filter(Boolean);
   const post = async (path, payload) => {
-    const r = await fetch(baseUrl + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(25000),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(`facilitator ${path} failed (${r.status})`);
-    return data;
+    let lastErr;
+    for (const base of bases) {
+      try {
+        const r = await fetch(base + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(25000),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(`facilitator ${path} failed (${r.status})`);
+        return data;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr ?? new Error(`facilitator ${path} failed`);
   };
   return {
     async getSupported() {
-      const r = await fetch(baseUrl + '/supported', { signal: AbortSignal.timeout(15000) });
-      if (!r.ok) throw new Error(`facilitator supported failed (${r.status})`);
-      return r.json();
+      let lastErr;
+      for (const base of bases) {
+        try {
+          const r = await fetch(base + '/supported', { signal: AbortSignal.timeout(15000) });
+          if (!r.ok) throw new Error(`facilitator supported failed (${r.status})`);
+          return r.json();
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr ?? new Error('facilitator supported failed');
     },
     async verify(paymentPayload, paymentRequirements) {
       return post('/verify', { x402Version: paymentPayload.x402Version, paymentPayload, paymentRequirements });
@@ -78,7 +95,7 @@ export function createWorkerApp(config = {}, deps = {}) {
   const cfg = { ...workerConfig, ...config };
   const fetchImpl = deps.fetchImpl ?? fetch;
 
-  const facilitator = deps.facilitator ?? plainFacilitator(cfg.facilitatorUrl);
+  const facilitator = deps.facilitator ?? plainFacilitator(cfg.facilitatorUrl, ['https://facilitator.ultravioletadao.xyz', 'https://x402.dexter.cash']);
   const resourceServer = new x402ResourceServer(facilitator)
     .register(cfg.network, new ExactEvmScheme());
   let initPromise = null;
